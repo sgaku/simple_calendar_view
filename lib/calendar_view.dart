@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'calendar.dart';
 
-class CalendarView extends StatefulWidget {
+class CalendarView extends ConsumerStatefulWidget {
   const CalendarView({super.key});
 
   @override
-  State<CalendarView> createState() => _CalendarViewState();
+  ConsumerState<CalendarView> createState() => _CalendarViewState();
 }
 
-class _CalendarViewState extends State<CalendarView> {
+class _CalendarViewState extends ConsumerState<CalendarView> {
   late final PageController calendarController;
   final DateTime firstDay = DateTime(1970, 1, 1);
 
@@ -28,6 +29,11 @@ class _CalendarViewState extends State<CalendarView> {
       ),
       body: PageView.builder(
         onPageChanged: (page) {
+          final nowDate = ref.read(todayProvider);
+          ref.read(focusedDayProvider.notifier).update((state) {
+            final distance = calendarController.initialPage - page;
+            return DateTime(nowDate.year, nowDate.month - distance);
+          });
         },
         controller: calendarController,
         itemBuilder: (context, index) {

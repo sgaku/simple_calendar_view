@@ -3,7 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final weekDayProvider = Provider((ref) => 7);
 final colorProvider = Provider((ref) => Colors.grey);
-final monthDurationProvider = StateProvider((ref) => 0);
 final todayProvider = Provider((ref) => DateTime.now());
 final focusedDayProvider = StateProvider((ref) => DateTime.now());
 
@@ -17,9 +16,6 @@ class Calendar extends ConsumerStatefulWidget {
 }
 
 class _CalendarState extends ConsumerState<Calendar> {
-  final bool isDisplayFooter = false;
-  final DateTime now = DateTime.now();
-
   @override
   void initState() {
     super.initState();
@@ -42,12 +38,13 @@ class CalendarHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final focusedDay = ref.watch(focusedDayProvider);
     return Container(
       height: 45,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("カレンダー"),
+          Text('${focusedDay.year}年${focusedDay.month}月'),
           // GestureDetector(
           //   child: const Icon(
           //     Icons.arrow_left,
@@ -105,12 +102,11 @@ class CalendarBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final focusedDay = ref.watch(focusedDayProvider);
     final weekDay = ref.watch(weekDayProvider);
-    final monthDuration = ref.watch(monthDurationProvider);
     List<Widget> list = [];
-    DateTime now = DateTime.now();
     DateTime firstDayOfTheMonth =
-        DateTime(now.year, now.month + monthDuration, 1);
+        DateTime(focusedDay.year, focusedDay.month, 1);
     int monthLastNumber =
         DateTime(firstDayOfTheMonth.year, firstDayOfTheMonth.month + 1, 1)
             .add(const Duration(days: -1))
@@ -185,9 +181,10 @@ class BuildCalendarItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final nowDate = ref.watch(todayProvider);
+    final focusedDay = ref.watch(focusedDayProvider);
     bool isToday = (nowDate.difference(cacheDate).inDays == 0) &&
         (nowDate.day == cacheDate.day);
-    bool isOutsideDay = (nowDate.month != cacheDate.month);
+    bool isOutsideDay = (focusedDay.month != cacheDate.month);
     if (isToday) {
       return Container(
         alignment: Alignment.topCenter,
